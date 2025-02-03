@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DotNetEnv;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -26,8 +27,13 @@ namespace TestPRN231.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
-                var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
-                string connectionString = config.GetConnectionString("ConnectionStrings");
+                Env.Load(); // Nạp giá trị từ .env
+                var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("Connection string is not found in .env file.");
+                }
+
                 optionsBuilder.UseSqlServer(connectionString);
             }
         }
